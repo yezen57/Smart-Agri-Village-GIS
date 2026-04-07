@@ -8,8 +8,10 @@ venv/
 # GIS Data (Avoid uploading large binaries)
 data/raw/BAJEL.jp2
 data/processed/*.tif
-outputs/**
-!outputs/.gitkeep
+outputs/figures/*.png
+
+# Keep HTML figures (interactive – useful for GitHub preview)
+!outputs/figures/*.html
 
 # Environments
 .env
