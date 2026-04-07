@@ -1,0 +1,11 @@
+Features : 540       ← عندك 540 خط كنتور
+CRS      : EPSG:32638  ← النظام الإسقاطي UTM Zone 38N (مناسب لليمن ✅)
+Columns  : ['OBJECTID', 'Id', 'Contour', 'Shape_Leng', 'geometry']
+Elevation field detected: 'Contour'  ← اكتشف تلقائياً أن عمود الارتفاع اسمه 'Contour' ✅
+Total sample points: 12,571   ← 12 ألف نقطة إحداثية من خطوط الكنتور
+Elevation range    : 293.0 – 364.0 m  ← المنطقة ترتفع بين 293 و 364 متر ✅
+Resolution : (10.0, 10.0)     ← دقة 10 متر لكل بكسل ✅
+Min elevation: 293.00 m
+Max elevation: 364.00 m
+NoData value : -9999.0
+

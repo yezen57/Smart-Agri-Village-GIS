@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# GIS Data (Avoid uploading large binaries)
+data/raw/BAJEL.jp2
+data/processed/*.tif
+outputs/**
+!outputs/.gitkeep
+
+# Environments
+.env
+
+# OS
+.DS_Store
+Thumbs.db
