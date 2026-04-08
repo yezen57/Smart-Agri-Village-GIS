@@ -15,6 +15,8 @@ from src.preprocess import (
     clip_vector_boundary_to_raster,
     run_validation,
 )
+from src.hydrology import run_hydrology_pipeline
+
 
 
 def main():
@@ -37,6 +39,9 @@ def main():
 
     # ── Step 5: Full Validation Suite ────────────────────────────────────
     run_validation()
+
+    # ── Step 6: Hydrological Processing (Fill Sinks, Slope, Aspect) ───────
+    run_hydrology_pipeline(dem_path=clipped_path)
 
 
 if __name__ == "__main__":

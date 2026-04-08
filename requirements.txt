@@ -5,4 +5,5 @@ scipy
 plotly
 matplotlib
 kaleido==0.2.1
+pysheds
 pyyaml
