@@ -16,10 +16,17 @@ from src.preprocess import (
     run_validation,
 )
 from src.hydrology import run_hydrology_pipeline
+from src.watershed import run_flow_analysis
 
 
 
 def main():
+    """
+    Executes the full Pipeline:
+    1. DEM Gen -> 2. Inspection -> 3. Clipping -> 
+    4. Vector Mapping -> 5. Validation -> 
+    6. Hydrology (Slope/Aspect) -> 7. Watershed (Channels)
+    """
     print("Starting GIS preprocessing pipeline …\n")
 
     # ── Step 1: Generate DEM from contour lines ──────────────────────────
@@ -42,6 +49,9 @@ def main():
 
     # ── Step 6: Hydrological Processing (Fill Sinks, Slope, Aspect) ───────
     run_hydrology_pipeline(dem_path=clipped_path)
+
+    # ── Step 7: Flow Analysis (Direction, Accumulation, Streams) ──────────
+    run_flow_analysis(threshold_pct=0.5)
 
 
 if __name__ == "__main__":

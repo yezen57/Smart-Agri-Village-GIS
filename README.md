@@ -1,107 +1,59 @@
-# Smart Agri-Village GIS Analysis 🌿🛰️
+# Bajil Smart Village - GIS & Hydrology Pipeline
+مشروع المعالجة الجيومكانية والتحليل الهيدرولوجي للقرية النموذجية - باجل
 
-### [باللغة العربية]
-مشروع متطور للتحليل الجيومكاني والتخطيط لمشروع **القرية النموذجية** (بجيل - اليمن).
-يهدف إلى استخدام تقنيات نظم المعلومات الجغرافية (GIS) لدعم الزراعة المستدامة الذكية.
+## 🚀 نظرة عامة (Overview)
+هذا النظام عبارة عن خط أنابيب (Pipeline) متكامل مبني بلغة بايثون، يقوم بتحويل خطوط الكنتور الخام إلى نماذج تضاريس رقمية (DEM) وتحليلها هيدرولوجياً لاستخراج شبكات الأودية ومسارات السيول بدقة هندسية عالية.
 
----
+## 🛠️ الحالة الحالية للمشروع (Status)
+المشروع الآن مكتمل حتى **المرحلة الرابعة**:
+- [x] **المرحلة الأولى:** توليد DEM من خطوط الكنتور.
+- [x] **المرحلة الثانية:** القص الآلي ومواءمة الإحداثيات (CRS).
+- [x] **المرحلة الثالثة:** المعالجة الهيدرولوجية (Fill Sinks) وحساب الميول (Slope/Aspect).
+- [x] **المرحلة الرابعة:** تحليل الجريان السطحي (Flow Dir/Acc) واستخراج شبكة الأودية (Vector Channels).
 
-### [English]
-An advanced geospatial analysis and planning project for the **Model Village** (Bajil, Yemen).
-Uses GIS and Python to support smart sustainable agriculture decision-making.
-
----
-
-## ✅ Current Status: DEM Ready for Hydrology Analysis
-
-```
-All checks passed. DEM is scientifically valid. ✓
-CRS     : EPSG:32638 (WGS 84 / UTM zone 38N)
-Range   : 293 – 364 m | Mean: 312 m | Std: 10.96 m
-NoData  : 0.0%
-Res     : 10 × 10 m
-```
-
----
-
-## 🔧 Pipeline Functions
-
-| Function | Description |
-|----------|-------------|
-| `generate_dem_from_contours()` | Contour → 10m DEM via scipy interpolation |
-| `inspect_dem()` | Print metadata + Plotly interactive visualization |
-| `clip_dem()` | Clip DEM to study boundary (auto CRS fix) |
-| `run_validation()` | Full validation suite (see below) |
-
-### Validation Suite (`run_validation`)
-| Part | Function | Output |
-|------|----------|--------|
-| 1 | `validate_crs()` | CRS table + overlap check for all layers |
-| 2 | `check_dem_quality()` | Stats, spike detection, nodata %, aspect ratio |
-| 3 | `plot_dem()` | matplotlib dark-mode DEM → `dem_check.png` |
-| 4 | `check_alignment()` | matplotlib DEM + boundary overlay → `dem_boundary_check.png` |
-
----
-
-## 📂 Project Structure
+## 📁 هيكلية المجلدات (Structure)
 ```text
 project/
 ├── data/
-│   ├── raw/
-│   │   ├── contor.shp              # Contour lines (540 features, EPSG:32638)
-│   │   └── باب_الناقة.shp          # Study area boundary
-│   └── processed/
-│       ├── dem.tif                 # Generated DEM 264×69 @ 10m
-│       └── dem_clipped.tif         # Clipped DEM
+│   ├── raw/             # البيانات الخام (.shp)
+│   └── processed/       # المخرجات الجيومكانية (DEM, Clipped Vectors)
+├── src/                 # ملفات الكود المصدري
+│   ├── preprocess.py    # المعالجة الأولية والتحقق
+│   ├── hydrology.py     # معالجة التضاريس (Fill Sinks, Slope)
+│   └── watershed.py     # تحليل التدفق واستخراج الأودية
 ├── outputs/
-│   └── figures/
-│       ├── dem_*.html              # Plotly interactive (2D + 3D)
-│       ├── dem_*.png               # Plotly static PNG
-│       ├── dem_check.png           # matplotlib validation plot
-│       └── dem_boundary_check.png  # matplotlib alignment overlay
-├── src/
-│   └── preprocess.py              # All pipeline & validation functions
-├── main.py                        # Entry point
-├── requirements.txt
-└── README.md
+│   ├── figures/         # التقارير البصرية (HTML التفاعلية و PNG)
+│   ├── channels.shp     # شبكة الأودية المستخرجة (Vector)
+│   └── dem_filled.tif   # نموذج الارتفاع الرقمي المصحح
+├── main.py              # ملف التشغيل الرئيسي
+└── requirements.txt     # المكتبات المطلوبة
 ```
 
----
+## 📊 التقارير البصرية (Visualizations)
+يوفر النظام نوعين من التقارير في مجلد `outputs/figures/`:
+1. **تقارير تفاعلية (Plotly)**: 
+   - خريطة 2D تفاعلية لتراكم المياه.
+   - نموذج 3D مجسم يوضح تراكب الأودية فوق الجبال.
+2. **تقارير ثابتة (Matplotlib/PNG)**:
+   - لقطات عالية التباين للتحليل الهندسي والمطبوعات.
 
-## 🚀 Getting Started
+## ⚙️ التثبيت والتشغيل (Setup)
+1. قم بتثبيت المكتبات اللازمة:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+2. لتشغيل النظام بالكامل:
+   ```powershell
+   python main.py
+   ```
 
-```bash
-pip install -r requirements.txt
-python main.py
-```
+## 📋 المتطلبات (Dependencies)
+- `PySheds`: للتحليل الهيدرولوجي المتقدم.
+- `Rasterio` & `GeoPandas`: لمعالجة بيانات الراستر والفيكتور.
+- `Plotly` & `Matplotlib`: للتمثيل البصري.
+- `Kaleido`: لتصدير الصور الثابتة من التقارير التفاعلية.
 
-### Full Pipeline Order:
-```
-[Step 1] generate_dem_from_contours()  →  dem.tif
-[Step 2] inspect_dem()                 →  Plotly HTML + PNG
-[Step 3] clip_dem()                    →  dem_clipped.tif + Plotly HTML + PNG
-[Step 4] run_validation()              →  CRS check + quality check + matplotlib plots
-```
-
----
-
-## 📦 Dependencies
-```
-numpy | geopandas | rasterio | scipy
-plotly | matplotlib | kaleido==0.2.1 | pyyaml
-```
-
-> **Note:** `kaleido==0.2.1` is required for Plotly PNG export (compatible with Plotly 5.x)
-
----
-
-## 🔜 Upcoming Modules
-| File | Content |
-|------|---------|
-| `src/flow.py` | Slope, flow direction, flow accumulation |
-| `src/suitability.py` | Multi-criteria agricultural suitability mapping |
-| `src/flood.py` | Flood zone modeling |
-| `src/export.py` | PDF report & final map export |
-
----
-**Developed for:** Smart Sustainable Agriculture Projects – Bajil, Yemen.
+## 🔜 الخطوات القادمة
+- دراسة مخاطر الفيضانات (Flood Risk Map).
+- تحليل الملاءمة الزراعية (Land Suitability).
+- استخراج تقرير PDF نهائي للمشروع.
