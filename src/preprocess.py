@@ -1091,3 +1091,41 @@ def clip_vector_boundary_to_raster(
 
     return out_path
 
+
+def prepare_roads_layer(roads_path: Path, boundary_path: Path, output_path: Path) -> gpd.GeoDataFrame:
+    """
+    Loads, clips, and validates the roads layer.
+    """
+    print(f"\n{'='*55}")
+    print("  Roads Layer Preparation")
+    print(f"{'='*55}")
+    
+    # 1. Load data
+    print(f"\n[1/3] Loading roads: {roads_path.name}")
+    roads = gpd.read_file(roads_path)
+    boundary = gpd.read_file(boundary_path)
+    
+    # 2. CRS Alignment
+    target_crs = "EPSG:32638"
+    if roads.crs != target_crs:
+        print(f"      [INFO] Reprojecting roads to {target_crs} …")
+        roads = roads.to_crs(target_crs)
+    
+    # 3. Clip to boundary
+    print(f"\n[2/3] Clipping roads to project boundary …")
+    roads_clipped = gpd.clip(roads, boundary)
+    
+    # 4. Geometry Validation
+    roads_clipped = roads_clipped[~roads_clipped.is_empty]
+    roads_clipped = roads_clipped[roads_clipped.is_valid]
+    
+    # 5. Save result
+    print(f"\n[3/3] Saving processed roads …")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    roads_clipped.to_file(output_path)
+    
+    print(f"\n✔ Roads clipped: {len(roads_clipped)} features")
+    print(f"✔ CRS: {roads_clipped.crs}")
+    
+    return roads_clipped
+

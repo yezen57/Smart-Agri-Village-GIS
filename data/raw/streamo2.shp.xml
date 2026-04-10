@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="ar"><Esri><CreaDate>20260317</CreaDate><CreaTime>01085300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\program files (x86)\arcgis\desktop10.8\ArcToolbox\Toolboxes\Spatial Analyst Tools.tbx\StreamToFeature" Date="20260317" Time="010322">StreamToFeature StreamO_flow2 FlowDir_Fill3 C:\Users\ALQURSAN\Documents\ArcGIS\Default.gdb\StreamT_StreamO2 SIMPLIFY</Process></lineage></DataProperties></Esri></metadata>

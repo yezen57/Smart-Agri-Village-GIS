@@ -12,11 +12,19 @@ from src.preprocess import (
     generate_dem_from_contours,
     inspect_dem,
     clip_dem,
+    validate_crs,
+    check_dem_quality,
+    prepare_roads_layer,
     clip_vector_boundary_to_raster,
     run_validation,
+    BOUNDARY_PATH
 )
 from src.hydrology import run_hydrology_pipeline
-from src.watershed import run_flow_analysis
+from src.watershed import run_flow_analysis, run_sensitivity_analysis
+from src.suitability import run_suitability_analysis
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent
 
 
 
@@ -24,8 +32,8 @@ def main():
     """
     Executes the full Pipeline:
     1. DEM Gen -> 2. Inspection -> 3. Clipping -> 
-    4. Vector Mapping -> 5. Validation -> 
-    6. Hydrology (Slope/Aspect) -> 7. Watershed (Channels)
+    4. Roads -> 5. Vector Mapping -> 6. Validation -> 
+    7. Hydrology (Slope/Aspect) -> 8. Watershed (Channels)
     """
     print("Starting GIS preprocessing pipeline …\n")
 
@@ -36,15 +44,19 @@ def main():
     # ── Step 2: Inspect the generated DEM (Plotly) ───────────────────────
     inspect_dem(dem_path, title="Generated DEM")
 
-    # ── Step 3: Clip DEM to study boundary ───────────────────────────────
-    clipped_path = clip_dem()
-    print(f"\n✓ Clipped DEM ready at: {clipped_path}\n")
+    # ── Step 3: Clip DEM to Boundary ──────────────────────────────────────
+    clipped_path = clip_dem(dem_path=dem_path)
 
-    # ── Step 4: Clip Vector Boundary to DEM Extent ──────────────────────
+    # ── Step 4: Prepare Roads Layer ───────────────────────────────────────
+    roads_in  = PROJECT_ROOT / "data" / "الطرق" / "roads.shp"
+    roads_out = PROJECT_ROOT / "data" / "processed" / "roads_clipped.shp"
+    prepare_roads_layer(roads_in, boundary_path=BOUNDARY_PATH, output_path=roads_out)
+
+    # ── Step 5: GIS & Vector Mapping ──────────────────────────────────────
     bound_clip_path = clip_vector_boundary_to_raster()
     print(f"\n✓ Clipped Boundary (Vector) ready at: {bound_clip_path}\n")
 
-    # ── Step 5: Full Validation Suite ────────────────────────────────────
+    # ── Step 6: Full Validation Suite ────────────────────────────────────
     run_validation()
 
     # ── Step 6: Hydrological Processing (Fill Sinks, Slope, Aspect) ───────
@@ -52,6 +64,12 @@ def main():
 
     # ── Step 7: Flow Analysis (Direction, Accumulation, Streams) ──────────
     run_flow_analysis(threshold_pct=0.5)
+
+    # ── Step 8: Sensitivity Analysis (Comparison of 3 Thresholds) ─────────
+    run_sensitivity_analysis()
+
+    # ── Step 9: Suitability Analysis (Final Site Selection) ──────────────
+    run_suitability_analysis()
 
 
 if __name__ == "__main__":

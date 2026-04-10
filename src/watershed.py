@@ -119,7 +119,76 @@ def run_flow_analysis(dem_path: Path = DEM_FILLED, threshold_pct: float = 0.5) -
     print(f"✔ Flow Accumulation computed")
     print(f"✔ Streams extracted (Threshold: {threshold:.0f})")
     print(f"✔ Channels shapefile created: {CHANNELS_SHP.name}")
-    print(f"\nFinal: Ready for Flood Suitability Analysis stage.\n")
+    print(f"\nFinal: Ready for Sensitivity Analysis stage.\n")
+
+
+def run_sensitivity_analysis(dem_path: Path = DEM_FILLED):
+    """
+    Performs sensitivity analysis on 3 thresholds: 50, 100, 300.
+    Calculates stats and generates comparative plots.
+    """
+    print(f"\n{'='*55}")
+    print("  PHASE 4.1: THRESHOLD SENSITIVITY ANALYSIS")
+    print(f"{'='*55}")
+
+    grid = Grid.from_raster(str(dem_path))
+    dem  = grid.read_raster(str(dem_path))
+    
+    # 1. Conditioning & Flow Dir
+    pit_filled_dem = grid.fill_pits(dem)
+    flooded_dem = grid.fill_depressions(pit_filled_dem)
+    inflated_dem = grid.resolve_flats(flooded_dem)
+    fdir = grid.flowdir(inflated_dem)
+    acc  = grid.accumulation(fdir)
+
+    thresholds = [50, 100, 300]
+    results = []
+
+    fig, axes = plt.subplots(1, 3, figsize=(20, 7), sharey=True)
+    fig.patch.set_facecolor('#fdfdfd')
+
+    for i, threshold in enumerate(thresholds):
+        print(f"\n[Testing] Threshold: {threshold} cells")
+        
+        # Extract network
+        branches = grid.extract_river_network(fdir, acc > threshold)
+        
+        features_list = []
+        total_length = 0
+        for branch in branches['features']:
+            line = shape(branch['geometry'])
+            features_list.append({'geometry': line, 'id': len(features_list)})
+            total_length += line.length # Unit is map units (meters)
+
+        gdf = gpd.GeoDataFrame(features_list, crs=grid.crs)
+        
+        # Save specific shapefile
+        out_shp = OUT_DIR / f"channels_{threshold}.shp"
+        gdf.to_file(out_shp)
+        
+        # Print stats
+        seg_count = len(gdf)
+        print(f"      Count: {seg_count} segments | Total Length: {total_length:.2f} m")
+        
+        results.append({
+            'threshold': threshold,
+            'count': seg_count,
+            'length': total_length,
+            'gdf': gdf
+        })
+
+        # Plot over DEM
+        axes[i].imshow(dem, cmap='terrain', alpha=0.6)
+        gdf.plot(ax=axes[i], color='blue', linewidth=1.0)
+        axes[i].set_title(f"Threshold: {threshold}\n({seg_count} segs, {total_length/1000:.1f} km)", fontweight='bold')
+        axes[i].axis('off')
+
+    plt.tight_layout()
+    plt.savefig(FIG_DIR / "threshold_sensitivity_comparison.png", dpi=200)
+    print(f"\n[SAVE] Sensitivity Comparison Plot → figures/threshold_sensitivity_comparison.png")
+    
+    return results
+
 
 
 def plot_watershed_results(acc, gdf_channels, dem):

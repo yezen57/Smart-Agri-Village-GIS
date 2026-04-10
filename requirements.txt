@@ -8,3 +8,4 @@ kaleido==0.2.1
 pysheds
 pyyaml
 shapely
+scikit-learn
