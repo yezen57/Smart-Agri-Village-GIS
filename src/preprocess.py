@@ -351,26 +351,30 @@ def visualise_dem(dem_path: Path,
     fig.update_xaxes(title_text="Easting (m)",  row=1, col=1)
     fig.update_yaxes(title_text="Northing (m)", row=1, col=1)
 
-    # ── Save outputs ──────────────────────────────────────────────────────
+    # -- Save outputs ------------------------------------------------------
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Build a clean filename from the DEM stem + title
-    safe_title = title.replace(" ", "_").replace("–", "-").replace("/", "-")
-    stem       = dem_path.stem   # e.g. "dem" or "dem_clipped"
-    base_name  = f"{stem}_{safe_title}"
+    # Simplified safe filename to avoid Windows Errno 22 (Invalid Argument)
+    # Removing special characters and keeping it short
+    clean_title = "".join([c for c in title if c.isalnum() or c in (' ', '_', '-')]).strip().replace(" ", "_")
+    stem        = dem_path.stem
+    base_name   = f"{stem}_{clean_title}"[:50] # Limit length
 
-    # 1. Interactive HTML (always available – no extra packages needed)
+    # 1. Interactive HTML
     html_path = FIGURES_DIR / f"{base_name}.html"
-    fig.write_html(str(html_path))
-    print(f"  [SAVE] Interactive HTML → {html_path}")
+    try:
+        fig.write_html(str(html_path))
+        print(f"  [SAVE] Interactive HTML → {html_path.name}")
+    except Exception as e:
+        print(f"  [WARN] Failed to save HTML: {e}")
 
-    # 2. Static PNG (requires kaleido; skipped gracefully if not installed)
+    # 2. Static PNG
     png_path = FIGURES_DIR / f"{base_name}.png"
     try:
         fig.write_image(str(png_path), scale=2)
-        print(f"  [SAVE] Static PNG      → {png_path}")
+        print(f"  [SAVE] Static PNG      → {png_path.name}")
     except Exception:
-        print("  [WARN] PNG export skipped (install kaleido: pip install kaleido)")
+        pass
 
     # ── Show in browser ───────────────────────────────────────────────────
     fig.show()
