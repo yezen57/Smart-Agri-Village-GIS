@@ -23,6 +23,7 @@ from src.hydrology import run_hydrology_pipeline
 from src.watershed import run_flow_analysis, run_sensitivity_analysis
 from src.suitability import run_suitability_analysis
 from src.flood import run_flood_simulation
+from src.export import run_export_pipeline
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -35,7 +36,7 @@ def main():
     # 1. DEM Gen -> 2. Inspection -> 3. Clipping -> 
     # 4. Roads -> 5. Vector Mapping -> 6. Validation -> 
     # 7. Hydrology (Slope/Aspect) -> 8. Watershed (Channels) ->
-    # 9. Sensitivity -> 10. Suitability -> 11. Flood Simulation
+    # 9. Sensitivity -> 10. Suitability -> 11. Flood Simulation -> 12. Export & Decisions
     """
     print("Starting GIS preprocessing pipeline …\n")
 
@@ -75,6 +76,9 @@ def main():
 
     # ── Step 11: Flood Simulation (Rainfall 50mm) ────────────────────────
     run_flood_simulation(rainfall_mm=50)
+
+    # ── Step 12: Final Decision & Export Pipeline ────────────────────────
+    run_export_pipeline()
 
 
 if __name__ == "__main__":
